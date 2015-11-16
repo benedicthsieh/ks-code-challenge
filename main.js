@@ -1,5 +1,6 @@
 var prompt = require('prompt');
 var fs = require('fs');
+var readline = require('readline');
 var App = require('./App');
 
 
@@ -61,20 +62,19 @@ function runInteractive() {
 }
 
 function runOnFile(filename) {
-  fs.readFile(filename, 'utf8', function(err, data) {
-    if (err) {
-      return console.log(err);
-    }
-    var app = new App();
-    data.split('\n').forEach(function(line) {
-      process.stdout.write(parseAndExecuteLine(line, app) + '\n');
-    });
-  })
+  var rl = readline.createInterface({
+    input: fs.createReadStream(filename)
+  });
+  var app = new App();
+
+  rl.on('line', function(line) {
+    console.log(parseAndExecuteLine(line, app));
+  });
 }
 
 var main = function(){
   if (process.argv.length > 2) {
-
+    runOnFile(process.argv[2]);
   } else {
     runInteractive();
   }
@@ -83,3 +83,6 @@ var main = function(){
 if (require.main === module) {
     main();
 }
+
+// exported for testing
+exports.parseAndExecuteLine = parseAndExecuteLine;
