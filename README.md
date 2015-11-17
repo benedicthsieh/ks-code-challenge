@@ -19,7 +19,10 @@ $ sudo npm install -g n
 $ sudo n stable  
 (https://davidwalsh.name/upgrade-nodejs)
 
-For tests:  
+To run tests:  
+$ mocha
+
+Additional libraries needed for tests:  
 $ sudo npm install -g mocha  
 $ sudo npm install -g sinon
 
