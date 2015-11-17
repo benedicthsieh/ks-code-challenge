@@ -25,14 +25,6 @@ CardManager.prototype.tryAddCard = function(backerName, cardNumber) {
 
 // Taken from https://gist.github.com/ShirtlessKirk/2134376
 // I believe this is an acceptable use under the linked license.
-
-// Tested with jsFiddle using testcases:
-// 49927398716 (true)
-// 49927398717 (false)
-// 1234567812345678 (false)
-// 1234567812345670 (true)
-// from http://rosettacode.org/wiki/Luhn_test_of_credit_card_numbers
-
 /**
  * Luhn algorithm in JavaScript: validate credit card number supplied as string of numbers
  * @author ShirtlessKirk. Copyright (c) 2012.

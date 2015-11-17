@@ -1,5 +1,8 @@
 var Pledge = require("./Pledge");
 
+var BACKER_NAME_MIN_LENGTH = 4;
+var BACKER_NAME_MAX_LENGTH = 20;
+
 /**
  * Represents a Kickstarter backer. Expected to be 'keyed' by name.
  * @param {String} name
@@ -13,7 +16,9 @@ function Backer(name) {
   this._pledges = [];
 }
 
-/** @type {Pledge} pledge */
+/**
+ * @param {Pledge} pledge
+ */
 Backer.prototype.updatePledge = function(pledge) {
   Pledge.findAndUpdatePledge(this._pledges, pledge);
 }
@@ -25,4 +30,17 @@ Backer.prototype.statusString = function() {
   return str;
 }
 
-module.exports = Backer;
+/*
+ * @param {String} backerName
+ */
+function makeBacker(backerName) {
+  if (backerName.length > BACKER_NAME_MAX_LENGTH
+    || backerName.length < BACKER_NAME_MIN_LENGTH) {
+    throw new Error("ERROR: backer name must be between "
+      + BACKER_NAME_MIN_LENGTH + " and " + BACKER_NAME_MAX_LENGTH
+      + "characters long.");
+  }
+  return new Backer(backerName);
+}
+
+exports.makeBacker = makeBacker;

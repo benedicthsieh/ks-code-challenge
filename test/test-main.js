@@ -9,33 +9,43 @@ test('#parseAndExecuteLine', function() {
   var app = {
     addProject: function() {},
     backProject: function() {},
-    projectStatusString: function() {},
-    backerStatusString: function() {}
-  };
-  var fineStatus = {
-    message: 'fine',
-    success: 'true'
+    getProject: function() {},
+    getBacker: function() {}
   };
   var mock = sinon.mock(app);
 
-  mock.expects("addProject").once().withArgs("proj1", 120)
-      .returns(fineStatus);
+  mock.expects("addProject").once().withArgs("proj1", 120);
   parseAndExecuteLine("project proj1 120", app);
   mock.verify();
 
   mock.expects("backProject").once()
-      .withArgs("backer", "proj-1", "4111111111111111", 100)
-      .returns(fineStatus);
+      .withArgs("backer", "proj-1", "4111111111111111", 100);
   parseAndExecuteLine("back backer proj-1 4111111111111111 100", app);
   mock.verify();
 
-  mock.expects("projectStatusString").once().withArgs("a_project")
-      .returns(fineStatus);
+  mock.expects("getProject").once().withArgs("a_project");
   parseAndExecuteLine("list a_project", app);
   mock.verify();
 
-  mock.expects("backerStatusString").once().withArgs("-a-backer12")
-      .returns(fineStatus);
+  mock.expects("getBacker").once().withArgs("-a-backer12");
   parseAndExecuteLine("backer -a-backer12", app);
   mock.verify();
+});
+
+test('#parseAndExecuteLine-wrongArgs', function() {
+  assert.equal(
+    parseAndExecuteLine("project proj1", {}).indexOf('ERROR'),
+    0);
+
+  assert.equal(
+    parseAndExecuteLine("back", {}).indexOf('ERROR'),
+    0);
+
+  assert.equal(
+    parseAndExecuteLine("list a_project a_backer", {}).indexOf('ERROR'),
+    0);
+
+  assert.equal(
+    parseAndExecuteLine("backer a_project a_backer", {}).indexOf('ERROR'),
+    0);
 });

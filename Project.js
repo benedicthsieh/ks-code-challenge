@@ -1,5 +1,8 @@
 var Pledge = require("./Pledge");
 
+var PROJECT_NAME_MIN_LENGTH = 4;
+var PROJECT_NAME_MAX_LENGTH = 20;
+
 /**
  * Represents a Kickstarter project. Expected to be 'keyed' by name.
  * @param {String} name
@@ -22,14 +25,16 @@ Project.prototype.getFundingTotal = function() {
 }
 
 Project.prototype.isTargetFunded = function() {
-  return this.getFundingTotal() > this.target;
+  return this.getFundingTotal() >= this.target;
 }
 
 Project.prototype.fundingShortBy = function() {
   return this.target - this.getFundingTotal();
 }
 
-/** @type {Pledge} pledge */
+/**
+ * @param {Pledge} pledge
+ */
 Project.prototype.updatePledge = function(pledge) {
   Pledge.findAndUpdatePledge(this._pledges, pledge);
 }
@@ -39,26 +44,28 @@ Project.prototype.statusString = function() {
     return "-- " + pledge.backerName + " backed for $" + pledge.amount;
   }).join('\n');
 
-  str += '\n';
+  str += '\n' + this.name;
   str += this.isTargetFunded() ?
       " is successful!" :
-      this.name + " needs $" + this.fundingShortBy() +
+      " needs $" + this.fundingShortBy() +
           " more dollars to be successful.";
-
   return str;
 }
 
-/**
- * Map from names to projects. Could substitute a data store here later.
- * @type {Map<string, Project>}
+/*
+ * @param {String} name
+ * @param {Number} target Target funding amount
+ * @return {!Project}
  */
-var projects = new Map();
-
-// static
-/** @param {String} */
-Project.getProject = function(name) {
-  return projects.get(name);
+function makeProject(projectName, target) {
+  if (projectName.length > PROJECT_NAME_MAX_LENGTH
+      || projectName.length < PROJECT_NAME_MIN_LENGTH) {
+    throw new Error("ERROR: project name must be between "
+      + PROJECT_NAME_MIN_LENGTH + " and " + PROJECT_NAME_MAX_LENGTH
+      + "characters long.");
+  }
+  return new Project(projectName, target);
 }
 
-module.exports = Project;
+exports.makeProject = makeProject;
 

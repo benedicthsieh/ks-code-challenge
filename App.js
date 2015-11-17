@@ -1,18 +1,7 @@
-var Project = require("./Project");
+var makeProject = require("./Project").makeProject;
 var Pledge = require("./Pledge");
-var Backer = require("./Backer");
+var makeBacker = require("./Backer").makeBacker;
 var CardManager = require("./CardManager");
-
-var PROJECT_NAME_MIN_LENGTH = 4;
-var PROJECT_NAME_MAX_LENGTH = 20;
-
-var BACKER_NAME_MIN_LENGTH = 4;
-var BACKER_NAME_MAX_LENGTH = 20;
-
-function AppStatus(success, message) {
-  this.message = message;
-  this.success = success;
-}
 
 function App() {
 
@@ -26,68 +15,70 @@ function App() {
   this._cardManager = new CardManager();
 }
 
+/**
+ * @param {String} projectName
+ * @param {Number} targetAmount
+ */
 App.prototype.addProject = function(projectName, targetAmount) {
   if (!!this._projects.get(projectName)) {
-    return new AppStatus(false, "ERROR: project with that name already exists.");
+    throw new Error("ERROR: project with that name already exists.");
   }
-  if (projectName.length > PROJECT_NAME_MAX_LENGTH
-      || projectName.length < PROJECT_NAME_MIN_LENGTH) {
-    return new AppStatus(false, "ERROR: project name must be between "
-      + PROJECT_NAME_MIN_LENGTH + " and " + PROJECT_NAME_MAX_LENGTH
-      + "characters long.");
-  }
-  this._projects.set(projectName, new Project(projectName, targetAmount));
-  return new AppStatus(
-    true, "Added " + projectName + " project with target of " + targetAmount);
+  this._projects.set(projectName, makeProject(projectName, targetAmount));
+  console.log("Added " + projectName + " project with target of " + targetAmount);
 }
 
+/**
+ * @param {String} backerName
+ * @param {String} projectName
+ * @param {String} cardNumber
+ * @param {Number} targetAmount
+ */
 App.prototype.backProject = function(backerName, projectName, cardNumber, amount) {
-  if (backerName.length > BACKER_NAME_MAX_LENGTH
-      || backerName.length < BACKER_NAME_MIN_LENGTH) {
-    return new AppStatus(false, "ERROR: backer name must be between "
-      + BACKER_NAME_MIN_LENGTH + " and " + BACKER_NAME_MAX_LENGTH
-      + "characters long.");
-  }
-
   var cardStatus = this._cardManager.tryAddCard(backerName, cardNumber);
   if (cardStatus != CardManager.CardAddStatus.VALID) {
-    return new AppStatus(false, cardStatus);
+    throw new Error(cardStatus);
   }
 
   var pledge = new Pledge(backerName, projectName, cardNumber, amount);
 
   var project = this._projects.get(projectName);
   if (!project) {
-    return new AppStatus(false, "ERROR: no project with that name.");
+    throw new Error("ERROR: no project with that name.");
   }
 
   var backer = this._backers.get(backerName);
   if (!backer) {
-    backer = new Backer(backerName);
+    backer = makeBacker(backerName);
     this._backers.set(backerName, backer);
   }
 
   project.updatePledge(pledge);
   backer.updatePledge(pledge);
 
-  return new AppStatus(true, backerName + " backed project " + projectName +
+  console.log(backerName + " backed project " + projectName +
     " for $" + amount);
 }
 
-App.prototype.projectStatusString = function(projectName) {
+/**
+ * @param {String} projectName
+ */
+App.prototype.getProject = function(projectName) {
   var project = this._projects.get(projectName);
   if (!project) {
-    return "ERROR: no project with that name.";
+    throw new Error("ERROR: no project with that name.");
   }
-  return project.statusString();
+  return project;
 };
 
-App.prototype.backerStatusString = function(backerName) {
+/**
+ * @param {String} backerName
+ */
+App.prototype.getBacker = function(backerName) {
   var backer = this._backers.get(backerName);
   if (!backer) {
-    return "ERROR: no backer with that name."
+    throw new Error("ERROR: no backer with that name.");
   }
-  return backer.statusString();
+  return backer;
 }
 
 module.exports = App;

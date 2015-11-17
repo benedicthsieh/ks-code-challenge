@@ -35,9 +35,9 @@ Pledge.hasSameKey = function(pledge1, pledge2) {
  * @param {Pledge} pledge
  */
 Pledge.findAndUpdatePledge = function(arr, pledge) {
-  var oldPledge = arr.find(Pledge.hasSameKey.bind(pledge));
+  var oldPledge = arr.find(Pledge.hasSameKey.bind(undefined, pledge));
   if (!!oldPledge) {
-    oldPledge.updatePledge(pledge);
+    oldPledge.update(pledge);
   } else {
     arr.push(pledge);
   }

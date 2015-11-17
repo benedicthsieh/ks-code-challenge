@@ -17,37 +17,44 @@ function parseAndExecuteLine(line, app) {
   if (arr.length < 1) {
     return "ERROR: Invalid input, expected a command.";
   }
-  switch (arr[0]) {
-    case "project":
-      if (arr.length != 3) {
-        return "ERROR: project command expects 2 arguments";
-      }
-      var amount = parseInt(arr[2], 10);
-      if (!amount) {
-        return "ERROR: 2nd argument for project must be a number.";
-      }
-      return app.addProject(arr[1], amount).message;
-    case "back":
-      if (arr.length != 5) {
-        return "ERROR: back command expects 4 arguments.";
-      }
-      var amount = parseInt(arr[4], 10);
-      if (!amount) {
-        return "ERROR: 4th argument for back must be a number.";
-      }
-      return app.backProject(arr[1], arr[2], arr[3], amount).message;
-    case "list":
-      if (arr.length != 2) {
-        return "ERROR: list command expects 1 argument.";
-      }
-      return app.projectStatusString(arr[1]);
-    case "backer":
-      if (arr.length !=2) {
-        return "ERROR: backer command expects 2 arguments.";
-      }
-      return app.backerStatusString(arr[1]);
-    default:
-      return "ERROR: Invalid input, expected a command.";
+  try {
+    switch (arr[0]) {
+      case "project":
+        if (arr.length != 3) {
+          return "ERROR: project command expects 2 arguments";
+        }
+        var amount = parseInt(arr[2], 10);
+        if (!amount) {
+          return "ERROR: 2nd argument for project must be a number.";
+        }
+        app.addProject(arr[1], amount);
+        break;
+      case "back":
+        if (arr.length != 5) {
+          return "ERROR: back command expects 4 arguments.";
+        }
+        var amount = parseInt(arr[4], 10);
+        if (!amount) {
+          return "ERROR: 4th argument for back must be a number.";
+        }
+        app.backProject(arr[1], arr[2], arr[3], amount);
+        break;
+      case "list":
+        if (arr.length != 2) {
+          return "ERROR: list command expects 1 argument.";
+        }
+        return app.getProject(arr[1]).statusString();
+      case "backer":
+        if (arr.length != 2) {
+          return "ERROR: backer command expects 2 arguments.";
+        }
+        return app.getBacker(arr[1]).statusString();
+      default:
+        return "ERROR: Invalid input, expected a command.";
+    }
+    return "";
+  } catch (e) {
+    return e.message;
   }
 }
 
